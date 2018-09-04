@@ -7,6 +7,12 @@ using System.Text.RegularExpressions;
 using Windows.ApplicationModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.Devices.Power;
+using Windows.System;
+using Windows.Security.Credentials.UI;
+using Windows.Networking;
+using Windows.Networking.Connectivity;
+using System.Linq;
 
 namespace RNDeviceInfo
 {
@@ -42,6 +48,65 @@ namespace RNDeviceInfo
             return DateTimeFormatInfo.CurrentInfo.ShortTimePattern.Contains("H");
         }
 
+        [ReactMethod]
+        public async void isPinOrFingerprintSet(ICallback actionCallback)
+        {
+            try
+            {
+                var ucvAvailability = await UserConsentVerifier.CheckAvailabilityAsync();
+
+                actionCallback.Invoke(ucvAvailability == UserConsentVerifierAvailability.Available);
+            }
+            catch (Exception ex)
+            {
+                actionCallback.Invoke(false);
+            }
+        }
+
+        [ReactMethod]
+        public async void getIpAddress(IPromise promise)
+        {
+            var hostNameType = HostNameType.Ipv4;
+            var icp = NetworkInformation.GetInternetConnectionProfile();
+
+            if (icp?.NetworkAdapter == null)
+            {
+                promise.Reject(new InvalidOperationException("Network adapter not found."));
+            }
+            else
+            {
+                var hostname = NetworkInformation.GetHostNames()
+                    .FirstOrDefault(
+                        hn =>
+                            hn.Type == hostNameType &&
+                            hn.IPInformation?.NetworkAdapter != null &&
+                            hn.IPInformation.NetworkAdapter.NetworkAdapterId == icp.NetworkAdapter.NetworkAdapterId);
+                promise.Resolve(hostname?.CanonicalName);
+            }
+        }
+
+        [ReactMethod]
+        public async void getBatteryLevel(IPromise promise)
+        {
+            // Create aggregate battery object
+            var aggBattery = Battery.AggregateBattery;
+
+            // Get report
+            var report = aggBattery.GetReport();
+
+            if ((report.FullChargeCapacityInMilliwattHours == null) ||
+                (report.RemainingCapacityInMilliwattHours == null))
+            {
+                promise.Reject(new InvalidOperationException("Could not fetch battery information."));
+            }
+            else
+            {
+                var max = Convert.ToDouble(report.FullChargeCapacityInMilliwattHours);
+                var value = Convert.ToDouble(report.RemainingCapacityInMilliwattHours);
+                promise.Resolve(value / max);
+            }
+        }
+
         public override IReadOnlyDictionary<string, object> Constants
         {
 
@@ -56,7 +121,8 @@ namespace RNDeviceInfo
                 Package package = Package.Current;
                 PackageId packageId = package.Id;
                 PackageVersion version = packageId.Version;
-                String packageName = package.DisplayName;
+                String bundleId = packageId.Name;
+                String appName = package.DisplayName;
 
                 try
                 {
@@ -98,7 +164,7 @@ namespace RNDeviceInfo
                 catch
                 {
                 }
-
+                
                 constants["instanceId"] = "not available";
                 constants["deviceName"] = deviceName;
                 constants["systemName"] = "Windows";
@@ -111,13 +177,16 @@ namespace RNDeviceInfo
                 constants["deviceCountry"] = culture.EnglishName;
                 constants["uniqueId"] = device_id;
                 constants["systemManufacturer"] = manufacturer;
-                constants["bundleId"] = packageName;
+                constants["bundleId"] = bundleId;
+                constants["appName"] = appName;
                 constants["userAgent"] = "not available";
                 constants["timezone"] = TimeZoneInfo.Local.Id;
                 constants["isEmulator"] = IsEmulator(model);
                 constants["isTablet"] = IsTablet(os);
                 constants["carrier"] = "not available";
                 constants["is24Hour"] = is24Hour();
+                constants["maxMemory"] = MemoryManager.AppMemoryUsageLimit;
+                constants["firstInstallTime"] = package.InstalledDate.ToUnixTimeMilliseconds();
 
                 return constants;
             }

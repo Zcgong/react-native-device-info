@@ -1,6 +1,6 @@
 {
   "name": "react-native-device-info",
-  "version": "0.13.0",
+  "version": "0.22.5",
   "description": "Get device information using react-native",
   "main": "deviceinfo.js",
   "typings": "./deviceinfo.d.ts",
@@ -27,10 +27,16 @@
       "name": "Gant Laborde",
       "email": "gant@infinite.red",
       "url": "https://github.com/gantman"
+    },
+    {
+      "name": "Mehdi Achour",
+      "email": "machour@gmail.com",
+      "url": "https://github.com/machour"
     }
   ],
   "license": "MIT",
   "devDependencies": {
-    "np": "^2.16.0"
+    "np": "^2.16.0",
+    "prettier": "^1.10.2"
   }
 }
