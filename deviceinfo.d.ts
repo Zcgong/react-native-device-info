@@ -31,6 +31,7 @@ declare const _default: {
   getSerialNumber: () => string;
   getIPAddress: () => Promise<string>
   getMACAddress: () => Promise<string>
+  wifiConfigInfo: () => Promise<object>
   getPhoneNumber: () => string;
   getAPILevel: () => number;
   getCarrier: () => string;

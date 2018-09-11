@@ -33,6 +33,7 @@ declare module.exports: {
   getAPILevel: () => number,
   getIPAddress: () => Promise<string>,
   getMACAddress: () => Promise<string>,
+  wifiConfigInfo: () => Promise<object>,
   getPhoneNumber: () => ?string,
   getCarrier: () => string,
   getTotalMemory: () => number,

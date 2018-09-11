@@ -19,6 +19,9 @@ export default {
   getSerialNumber: function() {
     return RNDeviceInfo.serialNumber;
   },
+  wifiConfigInfo: function() {
+    return RNDeviceInfo.wifiConfigInfo();
+  },
   getIPAddress: function() {
     return RNDeviceInfo.getIpAddress();
   },
