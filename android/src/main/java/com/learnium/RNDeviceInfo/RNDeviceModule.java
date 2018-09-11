@@ -147,6 +147,14 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void wifiConfigInfo(Promise p) {
+    HashMap<String, Object> wifiInfo = new HashMap<String, Object>();
+    wifiInfo.put("BSSID", this.wifiInfo.getBSSID());
+    wifiInfo.put("SSID", this.wifiInfo.getSSID());
+    p.resolve(wifiInfo);
+  }
+
+  @ReactMethod
   public void getMacAddress(Promise p) {
     String macAddress = getWifiInfo().getMacAddress();
 
