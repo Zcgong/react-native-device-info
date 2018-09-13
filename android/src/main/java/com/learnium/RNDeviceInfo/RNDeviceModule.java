@@ -149,10 +149,10 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
     WritableMap map = Arguments.createMap();
     String BSSID = this.getWifiInfo().getBSSID();
     String SSID = this.getWifiInfo().getSSID();
-    if (BSSID == null) {
+    if (TextUtils.isEmpty(BSSID)) {
       BSSID = "";
     }
-    if (SSID == null) {
+    if (TextUtils.isEmpty(SSID)) {
       SSID = "";
     }
 
