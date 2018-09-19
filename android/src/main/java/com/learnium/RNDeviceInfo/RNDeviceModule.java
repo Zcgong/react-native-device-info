@@ -19,15 +19,18 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.webkit.WebSettings;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
 
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -98,13 +101,13 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
 
   private Boolean isEmulator() {
     return Build.FINGERPRINT.startsWith("generic")
-        || Build.FINGERPRINT.startsWith("unknown")
-        || Build.MODEL.contains("google_sdk")
-        || Build.MODEL.contains("Emulator")
-        || Build.MODEL.contains("Android SDK built for x86")
-        || Build.MANUFACTURER.contains("Genymotion")
-        || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-        || "google_sdk".equals(Build.PRODUCT);
+            || Build.FINGERPRINT.startsWith("unknown")
+            || Build.MODEL.contains("google_sdk")
+            || Build.MODEL.contains("Emulator")
+            || Build.MODEL.contains("Android SDK built for x86")
+            || Build.MANUFACTURER.contains("Genymotion")
+            || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+            || "google_sdk".equals(Build.PRODUCT);
   }
 
   private Boolean isTablet() {
@@ -176,16 +179,16 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
 
           byte[] macBytes = nif.getHardwareAddress();
           if (macBytes == null) {
-              macAddress = "";
+            macAddress = "";
           } else {
 
             StringBuilder res1 = new StringBuilder();
             for (byte b : macBytes) {
-                res1.append(String.format("%02X:",b));
+              res1.append(String.format("%02X:",b));
             }
 
             if (res1.length() > 0) {
-                res1.deleteCharAt(res1.length() - 1);
+              res1.deleteCharAt(res1.length() - 1);
             }
 
             macAddress = res1.toString();
@@ -195,7 +198,7 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
       }
     }
 
-    p.resolve(macAddress);    
+    p.resolve(macAddress);
   }
 
   @ReactMethod
@@ -315,9 +318,9 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
     constants.put("fontScale", this.fontScale());
     constants.put("is24Hour", this.is24Hour());
     if (getCurrentActivity() != null &&
-        (getCurrentActivity().checkCallingOrSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED ||
-            getCurrentActivity().checkCallingOrSelfPermission(Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED ||
-            getCurrentActivity().checkCallingOrSelfPermission("android.permission.READ_PHONE_NUMBERS") == PackageManager.PERMISSION_GRANTED)) {
+            (getCurrentActivity().checkCallingOrSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED ||
+                    getCurrentActivity().checkCallingOrSelfPermission(Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED ||
+                    getCurrentActivity().checkCallingOrSelfPermission("android.permission.READ_PHONE_NUMBERS") == PackageManager.PERMISSION_GRANTED)) {
       TelephonyManager telMgr = (TelephonyManager) this.reactContext.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
       constants.put("phoneNumber", telMgr.getLine1Number());
     }
