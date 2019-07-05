@@ -2,6 +2,16 @@
 
 ### Next
 
+### 2.2.1
+* fix: crash on android api level less than 23 (https://github.com/react-native-community/react-native-device-info/pull/714)
+
+### 2.2.0
+* feat: sync some methods from flutter (https://github.com/react-native-community/react-native-device-info/pull/711)
+
+### 2.1.4
+* fix: additional checking in simulation method (https://github.com/react-native-community/react-native-device-info/pull/710)
+* docs(README): Add detail to ios getUniqueID() docs (https://github.com/react-native-community/react-native-device-info/pull/707)
+
 ### 2.1.3
 * fix: add missing devices to devices with notch list (https://github.com/react-native-community/react-native-device-info/pull/702)
 
