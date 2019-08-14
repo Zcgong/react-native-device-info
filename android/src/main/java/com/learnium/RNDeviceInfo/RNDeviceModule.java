@@ -186,8 +186,31 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
       return DeviceType.TV;
     }
 
+    DeviceType deviceTypeFromConfig = getDeviceTypeFromResourceConfiguration(reactContext);
+
+    if (deviceTypeFromConfig != null && deviceTypeFromConfig != DeviceType.UNKNOWN) {
+      return deviceTypeFromConfig;
+    }
+
+    return  getDeviceTypeFromPhysicalSize(reactContext);
+  }
+
+  // Use `smallestScreenWidthDp` to determine the screen size
+  // https://android-developers.googleblog.com/2011/07/new-tools-for-managing-screen-sizes.html
+  private  static  DeviceType getDeviceTypeFromResourceConfiguration(ReactApplicationContext reactContext) {
+    int smallestScreenWidthDp = reactContext.getResources().getConfiguration().smallestScreenWidthDp;
+
+    if (smallestScreenWidthDp == Configuration.SMALLEST_SCREEN_WIDTH_DP_UNDEFINED) {
+      return  DeviceType.UNKNOWN;
+    }
+
+    return  smallestScreenWidthDp >= 600 ? DeviceType.TABLET : DeviceType.HANDSET;
+  }
+
+  private static DeviceType getDeviceTypeFromPhysicalSize(ReactApplicationContext reactContext) {
     // Find the current window manager, if none is found we can't measure the device physical size.
     WindowManager windowManager = (WindowManager) reactContext.getSystemService(Context.WINDOW_SERVICE);
+
     if (windowManager == null) {
       return DeviceType.UNKNOWN;
     }
@@ -523,7 +546,7 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
     constants.put("product", Build.PRODUCT);
     constants.put("tags", Build.TAGS);
     constants.put("type", Build.TYPE);
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       constants.put("baseOS", Build.VERSION.BASE_OS);
       constants.put("previewSdkInt", Build.VERSION.PREVIEW_SDK_INT);
       constants.put("securityPatch", Build.VERSION.SECURITY_PATCH);

@@ -33,19 +33,49 @@ or using yarn:
 yarn add react-native-device-info
 ```
 
-> ⚠️ As of version 2.1.1 the package can be loaded async to improve start up time on Android [Refer to this PR for more information](https://github.com/react-native-community/react-native-device-info/pull/680)
-```java
-    @Override
-    public List<ReactPackage> createAdditionalReactPackages() {
-        return Arrays.<ReactPackage>asList(
-            new RNDeviceInfo(true), // Pass true to load the constants asynchronously on start up, default is false
-        );
-    }
-```
-
 > ⚠️ If you are on React Native > 0.47, you must use version 0.11.0 of this library or higher
 
-## Linking
+## AndroidX Support
+
+AndroidX is supported in a non-breaking / backwards-compatible way by using overrides in your `android/build.gradle` file's "ext" block
+
+<details>
+    <summary>Android</summary>
+
+```gradle
+...
+  ext {
+    // dependency versions
+    googlePlayServicesVersion = "17.0.0" // default: "16.1.0" - pre-AndroidX, override for AndroidX
+    compileSdkVersion = "28" // default: 28 (28 is required for AndroidX)
+    targetSdkVersion = "28" // default: 28 (28 is required for AndroidX)
+    supportLibVersion = '1.0.2' // Use '28.0.0' or don't specify for old libraries, '1.0.2' or similar for AndroidX
+    mediaCompatVersion = '1.0.1' // Do not specify if using old libraries, specify '1.0.1' or similar for androidx.media:media dependency
+    supportV4Version = '1.0.0' // Do not specify if using old libraries, specify '1.0.0' or similar for androidx.legacy:legacy-support-v4 dependency
+  }
+...
+```
+</details>
+
+## Linking (for React Native <= 0.59 only, React Native >= 0.60 skip this as auto-linking should work)
+
+> ⚠️ This package is loaded async by default to improve start up time on Android
+
+To disable async loading with autolinking, edit react-native.config.js:
+
+```js
+module.exports = {
+  dependencies: {
+    'react-native-device-info': {
+      platforms: {
+        android: {
+          packageInstance: 'new RNDeviceInfo(false)',
+        },
+      },
+    },
+  },
+};
+```
 
 ### Automatic
 
@@ -127,10 +157,9 @@ Run your project (Cmd+R)
 ...
   ext {
     // dependency versions
-    googlePlayServicesVersion = "<Your play services version>" // default: "+"
-    compileSdkVersion = "<Your compile SDK version>" // default: 23
-    buildToolsVersion = "<Your build tools version>" // default: "25.0.2"
-    targetSdkVersion = "<Your target SDK version>" // default: 22
+    googlePlayServicesVersion = "<Your play services version>" // default: "16.1.0" - pre-AndroidX, override for AndroidX
+    compileSdkVersion = "<Your compile SDK version>" // default: 28
+    targetSdkVersion = "<Your target SDK version>" // default: 28
   }
 ...
 ```
@@ -167,7 +196,7 @@ include ':app'
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-+         new RNDeviceInfo(),
++         new RNDeviceInfo(), //pass false in constructor to load module synchronously
           new MainReactPackage()
       );
     }
@@ -310,7 +339,7 @@ import DeviceInfo from 'react-native-device-info';
 | [isAutoDateAndTime()](#isAutoDateAndTime)                         | `Promise<boolean>`  |  ❌  |   ✅    |   ❌    | 0.29.0 |
 | [isAutoTimeZone()](#isAutoTimeZone)                               | `Promise<boolean>`  |  ❌  |   ✅    |   ❌    | 0.29.0 |
 | [supported32BitAbis()](#supported32BitAbis)                       | `string[]`          |  ❌  |   ✅    |   ❌    | ?      |
-| [supported64BitAbis()](#supported64BitAbis                        | `string[]`          |  ❌  |   ✅    |   ❌    | ?      |
+| [supported64BitAbis()](#supported64BitAbis)                       | `string[]`          |  ❌  |   ✅    |   ❌    | ?      |
 | [supportedABIs()](#supportedABIs)                                 | `string[]`          |  ✅  |   ✅    |   ❌    | 1.1.0  |
 | [hasSystemFeature()](#hassystemfeaturefeature)                    | `Promise<boolean>`  |  ❌  |   ✅    |   ❌    | ?      |
 | [getSystemAvailableFeatures()](#getSystemAvailableFeatures)       | `Promise<string[]>` |  ❌  |   ✅    |   ❌    | ?      |
@@ -415,7 +444,7 @@ Gets the device brand.
 const brand = DeviceInfo.getBrand();
 
 // iOS: "Apple"
-// Android: "Xiaomi"
+// Android: "xiaomi"
 // Windows: ?
 ```
 
@@ -1106,7 +1135,8 @@ const uniqueId = DeviceInfo.getUniqueID();
 
 **Notes**
 
-> * iOS: This is [`IDFV`](https://developer.apple.com/documentation/uikit/uidevice/1620059-identifierforvendor) or a random string if IDFV is unavaliable. Once UID is generated it is stored in iOS Keychain and NSUserDefaults. So it would stay the same even if you delete the app or reset IDFV. You can *carefully* consider it a persistent, cross-install unique ID. It can be changed only in case someone manually override values in Keychain/NSUserDefaults or if Apple would change Keychain and NSUserDefaults implementations
+> * iOS: This is [`IDFV`](https://developer.apple.com/documentation/uikit/uidevice/1620059-identifierforvendor) or a random string if IDFV is unavaliable. Once UID is generated it is stored in iOS Keychain and NSUserDefaults. So it would stay the same even if you delete the app or reset IDFV. You can *carefully* consider it a persistent, cross-install unique ID. It can be changed only in case someone manually override values in Keychain/NSUserDefaults or if Apple would change Keychain and NSUserDefaults implementations.
+> Beware: The IDFV is calculated using your bundle identifier and thus will be different in app extensions.
 > * android: Prior to Oreo, this id ([ANDROID_ID](https://developer.android.com/reference/android/provider/Settings.Secure.html#ANDROID_ID)) will always be the same once you set up your phone.
 
 ---
